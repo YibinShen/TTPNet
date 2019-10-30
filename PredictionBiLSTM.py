@@ -4,7 +4,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 
 from Attr import Attr
-from SpeedLocLSTM import SpeedLSTM, LocLSTM
+from SpeedRoadLSTM import SpeedLSTM, RoadLSTM
 
 class PredictionBiLSTM(nn.Module):
 
@@ -15,7 +15,7 @@ class PredictionBiLSTM(nn.Module):
     def build(self):
         self.attr_net = Attr()
         self.speed_lstm = SpeedLSTM()
-        self.loc_lstm = LocLSTM()
+        self.road_lstm = RoadLSTM()
         self.bi_lstm = nn.LSTM(
             input_size = self.attr_net.out_size() + 64, \
             hidden_size = 64, \
@@ -30,13 +30,13 @@ class PredictionBiLSTM(nn.Module):
         
     def forward(self, attr, traj):
         speeds_t = self.speed_lstm(attr, traj)
-        locs_t = self.loc_lstm(attr, traj)
+        roads_t = self.road_lstm(attr, traj)
         
         attr_t = self.attr_net(attr)
         attr_t = torch.unsqueeze(attr_t, dim = 1)
-        expand_attr_t = attr_t.expand(locs_t.size()[:2] + (attr_t.size()[-1], ))
+        expand_attr_t = attr_t.expand(roads_t.size()[:2] + (attr_t.size()[-1], ))
 
-        hiddens = torch.cat([expand_attr_t, speeds_t, locs_t], dim = 2)
+        hiddens = torch.cat([expand_attr_t, speeds_t, roads_t], dim = 2)
         hiddens = self.lnhiddens(hiddens)
         lens = copy.deepcopy(traj['lens'])
         lens = list(map(lambda x: x, lens))

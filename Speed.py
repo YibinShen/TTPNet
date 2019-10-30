@@ -23,6 +23,7 @@ class ShortSpeed(nn.Module):
         nn.init.uniform_(self.short_rnn.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
     
     def forward(self, traj):
+        # short-term travel speed features
         n_batchs = traj['speeds_forward'].size()[0]
         speeds_forward = traj['speeds_forward'].reshape(-1, 4)
         speeds_adjacent1 = traj['speeds_adjacent1'].reshape(-1, 4)
@@ -99,6 +100,7 @@ class LongSpeed(nn.Module):
         nn.init.uniform_(self.long_rnn.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
     
     def forward(self, traj):
+        # long-term travel speed features
         n_batchs = traj['speeds_history'].size()[0]
         speeds_history = traj['speeds_history'].reshape(-1, 7)
         grid_len = traj['grid_len'].reshape(-1, 1)

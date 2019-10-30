@@ -2,7 +2,7 @@ import os
 import json
 import time
 import utils
-import iTCL
+import TTPNet
 import logger
 import inspect
 import datetime
@@ -19,7 +19,7 @@ from torch.autograd import Variable
 parser = argparse.ArgumentParser()
 # basic args
 parser.add_argument('--task', type = str)
-parser.add_argument('--batch_size', type = int, default = 512)
+parser.add_argument('--batch_size', type = int, default = 256)
 parser.add_argument('--epochs', type = int, default = 50)
 
 # evaluation args
@@ -31,8 +31,7 @@ parser.add_argument('--log_file', type = str)
 
 args = parser.parse_args()
 
-DATA_PATH = '../../../dataset/Shanghai/'
-config = json.load(open(DATA_PATH+'config_iTCL.json', 'r'))
+config = json.load(open('config_TTPNet.json', 'r'))
 
 def train(model, elogger, train_set, eval_set):
     # record the experiment setting
@@ -143,10 +142,10 @@ def get_kwargs(model_class):
 
 def run():
     # get the model arguments
-    kwargs = get_kwargs(iTCL.iTCL)
+    kwargs = get_kwargs(TTPNet.TTPNet)
 
     # model instance
-    model = iTCL.iTCL(**kwargs)
+    model = TTPNet.TTPNet(**kwargs)
 
     # experiment logger
     elogger = logger.Logger(args.log_file)

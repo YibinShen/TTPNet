@@ -1,0 +1,64 @@
+TTPNet(
+  (bi_lstm): PredictionBiLSTM(
+    (attr_net): Attr(
+      (driverID_em): Embedding(13000, 8)
+      (weekID_em): Embedding(7, 3)
+      (timeID_em): Embedding(1440, 8)
+    )
+    (speed_lstm): SpeedLSTM(
+      (shortspeed_net): ShortSpeed(
+        (short_cnn): Conv1d(3, 4, kernel_size=(2,), stride=(1,))
+        (short_rnn): RNN(4, 16, batch_first=True)
+      )
+      (longspeed_net): LongSpeed(
+        (long_cnn): Conv1d(3, 4, kernel_size=(3,), stride=(1,))
+        (long_rnn): RNN(4, 16, batch_first=True)
+      )
+      (process_speeds): Linear(in_features=64, out_features=32, bias=True)
+      (speed_lstm): LSTM(32, 32, batch_first=True)
+    )
+    (road_lstm): RoadLSTM(
+      (Road_net): Road(
+        (embedding): Embedding(65536, 16)
+        (process_coords): Linear(in_features=34, out_features=32, bias=True)
+      )
+      (Road_lstm): LSTM(32, 32, batch_first=True)
+    )
+    (bi_lstm): LSTM(85, 64, num_layers=2, batch_first=True, bidirectional=True)
+    (lnhiddens): LayerNorm(torch.Size([85]), eps=1e-05, elementwise_affine=True)
+  )
+  (input2hid): Linear(in_features=128, out_features=128, bias=True)
+  (hid2hid): Linear(in_features=128, out_features=64, bias=True)
+  (hid2out): Linear(in_features=64, out_features=1, bias=True)
+)
+[('batch_size', 256), ('epochs', 50), ('log_file', 'TTPNet'), ('result_file', './result/TTPNet.res'), ('task', 'train'), ('weight_file', None)]
+Training Epoch 0, File 2013-10-20.json, Loss 0.6455774456262589
+Evaluate File 2013-10-21.json, Loss 0.6240849941968918
+Evaluate File 2013-10-22.json, Loss 0.2556966245174408
+Evaluate File 2013-10-23.json, Loss 0.6413138061761856
+Evaluate File 2013-10-24.json, Loss 0.22691462188959122
+Save weight file TTPNet_epoch0_2019-10-30 10:57:59.780508
+Training Epoch 1, File 2013-10-20.json, Loss 0.28728771209716797
+Evaluate File 2013-10-21.json, Loss 0.20121079683303833
+Evaluate File 2013-10-22.json, Loss 0.19521987810730934
+Evaluate File 2013-10-23.json, Loss 0.20710452273488045
+Evaluate File 2013-10-24.json, Loss 0.19466792419552803
+Save weight file TTPNet_epoch1_2019-10-30 10:58:53.931641
+Training Epoch 2, File 2013-10-20.json, Loss 0.27138083428144455
+Evaluate File 2013-10-21.json, Loss 0.1866353116929531
+Evaluate File 2013-10-22.json, Loss 0.1871705800294876
+Evaluate File 2013-10-23.json, Loss 0.18874363601207733
+Evaluate File 2013-10-24.json, Loss 0.19022845104336739
+Save weight file TTPNet_epoch2_2019-10-30 10:59:48.155244
+Training Epoch 3, File 2013-10-20.json, Loss 0.2633172944188118
+Evaluate File 2013-10-21.json, Loss 0.18462583422660828
+Evaluate File 2013-10-22.json, Loss 0.17825691401958466
+Evaluate File 2013-10-23.json, Loss 0.17864999920129776
+Evaluate File 2013-10-24.json, Loss 0.17679939046502113
+Save weight file TTPNet_epoch3_2019-10-30 11:00:42.416155
+Training Epoch 4, File 2013-10-20.json, Loss 0.29770878702402115
+Evaluate File 2013-10-21.json, Loss 0.18061359226703644
+Evaluate File 2013-10-22.json, Loss 0.1864689327776432
+Evaluate File 2013-10-23.json, Loss 0.18486809730529785
+Evaluate File 2013-10-24.json, Loss 0.17951828613877296
+Save weight file TTPNet_epoch4_2019-10-30 11:01:36.759779

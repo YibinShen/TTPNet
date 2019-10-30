@@ -3,9 +3,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class Loc(nn.Module):
+class Road(nn.Module):
     def __init__(self):
-        super(Loc, self).__init__()
+        super(Road, self).__init__()
         self.build()
 
     def build(self):
@@ -18,7 +18,7 @@ class Loc(nn.Module):
             nn.init.uniform_(module.state_dict()['weight'], a=-1, b=1)
 
     def forward(self, traj):
-        # locs模块
+        # road network structure layer
         lngs = torch.unsqueeze(traj['lngs'], dim = 2)
         lats = torch.unsqueeze(traj['lats'], dim = 2)
         grid_ids = torch.unsqueeze(traj['grid_id'].long(), dim = 2)

@@ -11,8 +11,7 @@ import ujson as json
 class MySet(Dataset):
     def __init__(self, input_file):
         
-        DATA_PATH = '../../../dataset/Shanghai/ShanghaiTaxi_iTCL/'
-        READ_DATA_PATH = DATA_PATH+'ShanghaiTaxi_iTCL_Train_Whole/'
+        READ_DATA_PATH = 'data/'
         self.content = open(READ_DATA_PATH + input_file, 'r').readlines()
         self.content = list(map(lambda x: json.loads(x), self.content))
         self.lengths = list(map(lambda x: len(x['lngs']), self.content))
@@ -60,8 +59,6 @@ def collate_fn(data):
             padded = np.zeros(mask_speeds_forward.shape, dtype = np.float32)
             padded[mask_speeds_forward] = np.concatenate(x)
             
-#            padded = utils.normalize(padded, key)
-            
             padded = torch.from_numpy(padded).float()
             padded = padded.reshape(padded.shape[0], -1, 4)
             traj[key] = padded
@@ -71,8 +68,6 @@ def collate_fn(data):
             mask_speeds_history = np.arange(lens.max()*7) < lens[:, None]*7
             padded = np.zeros(mask_speeds_history.shape, dtype = np.float32)
             padded[mask_speeds_history] = np.concatenate(x)
-            
-#            padded = utils.normalize(padded, key)
             
             padded = torch.from_numpy(padded).float()
             padded = padded.reshape(padded.shape[0], -1, 7)
@@ -89,7 +84,6 @@ def collate_fn(data):
 
         elif key == 'time_gap':
             x = np.asarray([item[key] for item in data])
-#            time = np.asarray([item['time'] for item in data])
             mask = np.arange(lens.max()) < lens[:, None]
             padded = np.ones(mask.shape, dtype = np.float32)
             padded[mask] = np.concatenate(x)
@@ -97,25 +91,13 @@ def collate_fn(data):
             # label
             T_f = torch.from_numpy(padded).float()
             T_f = T_f[:, 1:]
-#            time = torch.from_numpy(time).float()
-#            time = torch.unsqueeze(time, dim = 1)
-#            T_b = time - T_f
-#            T_b = T_b[:, :-1]
-#            T_b[T_b == 0] = 1.0
-            # dual_loss
             mask_f = mask[:, 1:]
-#            mask_b = mask[:, 2:]
             M_f = np.zeros(mask_f.shape, dtype = np.int)
-#            M_b = np.zeros(mask_b.shape, dtype = np.int)
             M_f[mask_f] = 1
-#            M_b[mask_b] = 1
             M_f = torch.from_numpy(M_f).float()
-#            M_b = torch.from_numpy(M_b).float()
             
             traj['T_f'] = T_f
-#            traj['T_b'] = T_b
             traj['M_f'] = M_f
-#            traj['M_b'] = M_b
         
         elif key == 'grid_len':
             x = np.asarray([item[key] for item in data])

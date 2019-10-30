@@ -8,7 +8,7 @@ import numpy as np
 from torch.autograd import Variable
 
 class Attr(nn.Module):
-    embed_dims = [('driverID', 14000, 8), ('weekID', 7, 3), ('timeID', 1440, 8)]
+    embed_dims = [('driverID', 13000, 8), ('weekID', 7, 3), ('timeID', 1440, 8)]
 
     def __init__(self):
         super(Attr, self).__init__()
