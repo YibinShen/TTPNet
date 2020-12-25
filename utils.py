@@ -5,7 +5,7 @@ import json
 
 from math import radians, cos, sin, asin, sqrt
 
-config = json.load(open('config_TTPNet.json', 'r'))
+config = json.load(open('Config/Config_128.json', 'r'))
 
 def geo_distance(lon1, lat1, lon2, lat2):
     """

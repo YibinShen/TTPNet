@@ -31,7 +31,7 @@ parser.add_argument('--log_file', type = str)
 
 args = parser.parse_args()
 
-config = json.load(open('config_TTPNet.json', 'r'))
+config = json.load(open('Config/Config_128.json', 'r'))
 
 def train(model, elogger, train_set, eval_set):
     # record the experiment setting
@@ -43,8 +43,9 @@ def train(model, elogger, train_set, eval_set):
     if torch.cuda.is_available():
         model.cuda()
 
-    optimizer = optim.Adam(model.parameters(), lr = 1e-3)
-
+    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.5)
+    
     for epoch in range(args.epochs):
         model.train()
         print('Training on epoch {}'.format(epoch))
@@ -62,8 +63,7 @@ def train(model, elogger, train_set, eval_set):
                 attr, traj = utils.to_var(attr), utils.to_var(traj)
 #                print(attr)
 
-#                _, loss = model.eval_on_batch(attr, traj, config)
-                _, loss, _, _ = model.eval_on_batch(attr, traj, config)
+                _, loss = model.eval_on_batch(attr, traj, config)
 
                 # update the model
                 optimizer.zero_grad()
@@ -75,16 +75,18 @@ def train(model, elogger, train_set, eval_set):
 #                print(loss.item())
                 
             print('\r Progress {:.2f}%, average loss {}'.format((idx + 1) * 100.0 / len(data_iter), running_loss / (idx + 1.0)))
-#                
-        elogger.log('Training Epoch {}, File {}, Loss {}'.format(epoch, input_file, running_loss / (idx + 1.0)))
 
-        # evaluate the model after each epoch
-        evaluate(model, elogger, eval_set, save_result = True)
+        scheduler.step()
+#        elogger.log('Training Epoch {}, File {}, Loss {}'.format(epoch, input_file, running_loss / (idx + 1.0)))
+        
+        if epoch % 10 == 0 or epoch > args.epochs - 5:
+            # evaluate the model after each epoch
+            evaluate(model, elogger, eval_set, save_result = True)
 
         # save the weight file after each epoch
 #        weight_name = '{}_{}'.format(args.log_file, str(datetime.datetime.now()))
         weight_name = '{}_epoch{}_{}'.format(args.log_file, str(epoch), str(datetime.datetime.now()))
-        elogger.log('Save weight file {}'.format(weight_name))
+#        elogger.log('Save weight file {}'.format(weight_name))
         torch.save(model.state_dict(), './saved_weights/' + weight_name)
 
 def write_result(fs, pred_dict, attr):
@@ -115,8 +117,7 @@ def evaluate(model, elogger, files, save_result = False):
         for idx, (attr, traj) in enumerate(data_iter):
             attr, traj = utils.to_var(attr), utils.to_var(traj)
 
-#            pred_dict, loss = model.eval_on_batch(attr, traj, config)
-            _, _, pred_dict, loss = model.eval_on_batch(attr, traj, config)
+            pred_dict, loss = model.eval_on_batch(attr, traj, config)
 
             if save_result: write_result(fs, pred_dict, attr)
 

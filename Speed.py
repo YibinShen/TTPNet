@@ -20,14 +20,14 @@ class ShortSpeed(nn.Module):
             batch_first = True
         )
         
-        nn.init.uniform_(self.short_rnn.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
+#        nn.init.uniform_(self.short_rnn.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
     
     def forward(self, traj):
         # short-term travel speed features
-        n_batchs = traj['speeds_forward'].size()[0]
-        speeds_forward = traj['speeds_forward'].reshape(-1, 4)
-        speeds_adjacent1 = traj['speeds_adjacent1'].reshape(-1, 4)
-        speeds_adjacent2 = traj['speeds_adjacent2'].reshape(-1, 4)
+        n_batchs = traj['speeds_0'].size()[0]
+        speeds_forward = traj['speeds_0'].reshape(-1, 4)
+        speeds_adjacent1 = traj['speeds_1'].reshape(-1, 4)
+        speeds_adjacent2 = traj['speeds_2'].reshape(-1, 4)
         grid_len = traj['grid_len'].reshape(-1, 1)
         
         speeds_forward = torch.unsqueeze(speeds_forward, dim =2)
@@ -47,9 +47,9 @@ class ShortSpeed(nn.Module):
         times_adjacent2[times_adjacent2==0] = 0.2
         times_adjacent2 = grid_len_short / times_adjacent2 * 3600
         
-        speeds_forward = utils.normalize(speeds_forward, 'speeds_forward')
-        speeds_adjacent1 = utils.normalize(speeds_adjacent1, 'speeds_adjacent1')
-        speeds_adjacent2 = utils.normalize(speeds_adjacent2, 'speeds_adjacent2')
+        speeds_forward = utils.normalize(speeds_forward, 'speeds_0')
+        speeds_adjacent1 = utils.normalize(speeds_adjacent1, 'speeds_1')
+        speeds_adjacent2 = utils.normalize(speeds_adjacent2, 'speeds_2')
         grid_len_short = utils.normalize(grid_len_short, 'grid_len')
         times_forward = utils.normalize(times_forward, 'time_gap')
         times_adjacent1 = utils.normalize(times_adjacent1, 'time_gap')
@@ -97,12 +97,12 @@ class LongSpeed(nn.Module):
             batch_first = True
         )
 
-        nn.init.uniform_(self.long_rnn.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
+#        nn.init.uniform_(self.long_rnn.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
     
     def forward(self, traj):
         # long-term travel speed features
-        n_batchs = traj['speeds_history'].size()[0]
-        speeds_history = traj['speeds_history'].reshape(-1, 7)
+        n_batchs = traj['speeds_long'].size()[0]
+        speeds_history = traj['speeds_long'].reshape(-1, 7)
         grid_len = traj['grid_len'].reshape(-1, 1)
         
         speeds_history = torch.unsqueeze(speeds_history, dim = 2)
@@ -114,7 +114,7 @@ class LongSpeed(nn.Module):
         times_history[times_history==0] = 0.2
         times_history = grid_len_long / times_history * 3600
         
-        speeds_history = utils.normalize(speeds_history, 'speeds_history')
+        speeds_history = utils.normalize(speeds_history, 'speeds_long')
         grid_len_long = utils.normalize(grid_len_long, 'grid_len')
         times_history = utils.normalize(times_history, 'time_gap')
         

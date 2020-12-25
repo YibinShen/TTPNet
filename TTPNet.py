@@ -10,7 +10,7 @@ class TTPNet(nn.Module):
         super(TTPNet, self).__init__()
 
         self.build()
-        self.init_weight()
+#        self.init_weight()
 
     def build(self):
         self.bi_lstm = PredictionBiLSTM()
@@ -32,9 +32,9 @@ class TTPNet(nn.Module):
         h_f = torch.stack(h_f).permute(1, 0, 2)
         
         T_f_hat = self.input2hid(h_f)
-        T_f_hat = F.leaky_relu(T_f_hat)
+        T_f_hat = F.relu(T_f_hat)
         T_f_hat = self.hid2hid(T_f_hat)
-        T_f_hat = F.leaky_relu(T_f_hat)
+        T_f_hat = F.relu(T_f_hat)
         T_f_hat = self.hid2out(T_f_hat)
 
         return T_f_hat
@@ -58,20 +58,23 @@ class TTPNet(nn.Module):
         
         return {'label': label, 'pred': pred}, loss.mean()
     
-    def init_weight(self):
-        for name, param in self.named_parameters():
-            if name.find('.ln') == -1:
-                print(name)
-                if name.find('.bias') != -1:
-                    param.data.fill_(0)
-                elif name.find('.weight') != -1:
-                    nn.init.xavier_uniform_(param.data)
+#    def init_weight(self):
+#        for name, param in self.named_parameters():
+#            if name.find('.ln') == -1:
+#                print(name)
+#                if name.find('.bias') != -1:
+#                    param.data.fill_(0)
+#                elif name.find('.weight') != -1:
+#                    nn.init.xavier_uniform_(param.data)
     
     def eval_on_batch(self, attr, traj, config):
         T_f_hat = self(attr, traj)
-        
-        pred_dict, loss = self.dual_loss(T_f_hat, traj, 
-                                     config['time_gap_mean'], config['time_gap_std'])
-        MAPE_dict, MAPE_loss = self.MAPE_loss(pred_dict['pred'], attr['time'], 
-                                          config['time_mean'], config['time_std'])
-        return pred_dict, loss, MAPE_dict, MAPE_loss
+        if self.training:
+            pred_dict, loss = self.dual_loss(T_f_hat, traj, config['time_gap_mean'], config['time_gap_std'])
+            return pred_dict, loss
+        else:
+#            pred_dict, loss = self.dual_loss(T_f_hat, traj, config['time_gap_mean'], config['time_gap_std'])
+#            MAPE_dict, MAPE_loss = self.MAPE_loss(pred_dict['pred'], attr['time'], config['time_mean'], config['time_std'])
+            pred = T_f_hat * config['time_gap_std'] + config['time_gap_mean']
+            MAPE_dict, MAPE_loss = self.MAPE_loss(pred[:, -1], attr['time'], config['time_mean'], config['time_std'])
+            return MAPE_dict, MAPE_loss

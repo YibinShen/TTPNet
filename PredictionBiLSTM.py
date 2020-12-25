@@ -26,7 +26,7 @@ class PredictionBiLSTM(nn.Module):
         )
         
         self.lnhiddens = nn.LayerNorm(self.attr_net.out_size() + 64, elementwise_affine=True)
-        nn.init.uniform_(self.bi_lstm.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
+#        nn.init.uniform_(self.bi_lstm.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
         
     def forward(self, attr, traj):
         speeds_t = self.speed_lstm(attr, traj)

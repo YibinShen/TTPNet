@@ -8,7 +8,7 @@ import numpy as np
 from torch.autograd import Variable
 
 class Attr(nn.Module):
-    embed_dims = [('driverID', 13000, 8), ('weekID', 7, 3), ('timeID', 1440, 8)]
+    embed_dims = [('driverID', 13000, 8), ('weekID', 7, 3), ('timeID', 96, 8)]
 
     def __init__(self):
         super(Attr, self).__init__()
@@ -19,10 +19,10 @@ class Attr(nn.Module):
         for name, dim_in, dim_out in Attr.embed_dims:
             self.add_module(name + '_em', nn.Embedding(dim_in, dim_out))
         
-        for module in self.modules():
-            if type(module) is not nn.Embedding:
-                continue
-            nn.init.uniform_(module.state_dict()['weight'], a=-1, b=1)
+#        for module in self.modules():
+#            if type(module) is not nn.Embedding:
+#                continue
+#            nn.init.uniform_(module.state_dict()['weight'], a=-1, b=1)
 
     def out_size(self):
         sz = 0

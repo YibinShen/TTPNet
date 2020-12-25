@@ -26,7 +26,7 @@ class SpeedLSTM(nn.Module):
             dropout = 0
         )
 
-        nn.init.uniform_(self.speed_lstm.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
+#        nn.init.uniform_(self.speed_lstm.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
 
     def forward(self, attr, traj):
         shortspeeds_t = self.shortspeed_net(traj)
@@ -68,7 +68,7 @@ class RoadLSTM(nn.Module):
             dropout = 0
         )
 
-        nn.init.uniform_(self.Road_lstm.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
+#        nn.init.uniform_(self.Road_lstm.state_dict()['weight_hh_l0'], a=-0.05, b=0.05)
 
     def forward(self, attr, traj):
         Roads_t = self.Road_net(traj)

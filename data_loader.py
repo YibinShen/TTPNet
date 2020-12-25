@@ -1,19 +1,19 @@
 import time
+import json
+import numpy as np
+
 import utils
 
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 
-import numpy as np
-import ujson as json
 
 class MySet(Dataset):
     def __init__(self, input_file):
         
         READ_DATA_PATH = 'data/'
-        self.content = open(READ_DATA_PATH + input_file, 'r').readlines()
-        self.content = list(map(lambda x: json.loads(x), self.content))
+        self.content = json.load(open(READ_DATA_PATH + input_file, 'r'))
         self.lengths = list(map(lambda x: len(x['lngs']), self.content))
 
     def __getitem__(self, idx):
@@ -27,10 +27,7 @@ def collate_fn(data):
     info_attrs = ['driverID', 'dateID', 'weekID', 'timeID']
 
     traj_attrs = ['lngs', 'lats', 'grid_id', 'time_gap', 'grid_len',
-                  'speeds_forward', 'speeds_history', 
-                  'speeds_adjacent1', 'speeds_adjacent2',
-                  'SDNE_embedding']
-
+                  'speeds_0', 'speeds_1', 'speeds_2', 'speeds_long']
     attr, traj = {}, {}
 
     lens = np.asarray([len(item['lngs']) for item in data])
@@ -43,17 +40,7 @@ def collate_fn(data):
         attr[key] = torch.LongTensor([item[key] for item in data])
     
     for key in traj_attrs:
-        if key == 'SDNE_embedding':
-            x = np.asarray([item[key] for item in data])
-            mask_deepwalk = np.arange(lens.max()*16) < lens[:, None]*16
-            padded = np.zeros(mask_deepwalk.shape, dtype = np.float32)
-            padded[mask_deepwalk] = np.concatenate(x)
-            
-            padded = torch.from_numpy(padded).float()
-            padded = padded.reshape(padded.shape[0], -1, 16)
-            traj[key] = padded
-                
-        elif (key == 'speeds_forward') or (key == 'speeds_adjacent1') or (key == 'speeds_adjacent2'):
+        if key == 'speeds_0' or key == 'speeds_1' or key == 'speeds_2':
             x = np.asarray([item[key] for item in data])
             mask_speeds_forward = np.arange(lens.max()*4) < lens[:, None]*4
             padded = np.zeros(mask_speeds_forward.shape, dtype = np.float32)
@@ -63,7 +50,7 @@ def collate_fn(data):
             padded = padded.reshape(padded.shape[0], -1, 4)
             traj[key] = padded
         
-        elif key == 'speeds_history':
+        elif key == 'speeds_long':
             x = np.asarray([item[key] for item in data])
             mask_speeds_history = np.arange(lens.max()*7) < lens[:, None]*7
             padded = np.zeros(mask_speeds_history.shape, dtype = np.float32)
